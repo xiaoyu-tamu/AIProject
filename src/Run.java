@@ -29,7 +29,10 @@ public class Run {
              *
              * \G is a zero-width assertion that matches the position where the previous match ended. If there was no previous match, it matches the beginning of the input,
              */
-            String [] states = Arrays.toString(bits.split("(?<=\\G.{64})")));
+            String[] states = bits.split("(?<=\\G.{64})");
+            for(String s : states) {
+                System.out.println(s);
+            }
 
 
 
