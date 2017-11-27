@@ -1,15 +1,27 @@
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.primitives.Bytes;
+
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
 
 public class Run {
     public static void main(String[] args) throws IOException {
 
         final int NUM_OF_STATES = 2;
         final int SIZE = 8;
-        System.out.println("Testing");
+        final String[] numberTable = {
+                "0000000000000001","0000000000000010","0000000000000100","0000000000001000",
+                "0000000000010000","0000000000100000","0000000001000000","0000000010000000",
+                "0000000100000000","0000001000000000","0000010000000000","0000100000000000",
+                "0001000000000000","0010000000000000","0100000000000000","1000000000000000",
+        };
 
         String homeFolder = System.getProperty("user.home");
         String dataFolder = homeFolder + File.separator + "data";
@@ -24,14 +36,17 @@ public class Run {
             reverseBytes(buffer);
 
             String bits = convertBytesToBits(buffer);
-            /**
-             * Split string to equal length substrings in Java
-             *
-             * \G is a zero-width assertion that matches the position where the previous match ended. If there was no previous match, it matches the beginning of the input,
-             */
-            String[] states = bits.split("(?<=\\G.{64})");
+
+            String[] states = toFixedString(bits,64);
+
             for(String s : states) {
-                System.out.println(s);
+                String[] number = toFixedString(s,4);
+                for(String n : number) {
+                    int digit = btod(n);
+                    System.out.print(digit + "\t");
+                    System.out.println(numberTable[digit]);
+                }
+                System.out.println();
             }
 
 
@@ -39,20 +54,28 @@ public class Run {
         }
     }
 
-    public static void reverseBytes(byte[] array) {
-        if (array == null) {
-            return;
-        }
-        int i = 0;
-        int j = array.length - 1;
-        byte tmp;
-        while (j > i) {
-            tmp = array[j];
-            array[j] = array[i];
-            array[i] = tmp;
-            j--;
-            i++;
-        }
+    /**
+     * convert binary string to integer
+     * @param binary string representation
+     * @return an integer
+     */
+    public static int btod(String binary) {
+        return Integer.parseInt(binary,2);
+    }
+
+    /**
+     * Split string to equal length substrings
+     * @param string the source string
+     * @param size fixed length
+     * @return an array of fixed length substring
+     */
+    public static String[] toFixedString(String string, int size) {
+        String reg = "(?<=\\G.{" + size + "})";
+        return string.split(reg);
+    }
+
+    public static byte[] reverseBytes(byte[] array) {
+        return Bytes.toArray(Lists.reverse(Bytes.asList(array)));
     }
 
     public static String convertBytesToBits(byte[] bytes) {
